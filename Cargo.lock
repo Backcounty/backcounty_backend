@@ -238,7 +238,9 @@ name = "backcounty"
 version = "0.0.0"
 dependencies = [
  "db",
+ "model",
  "routes",
+ "thiserror",
  "tokio",
 ]
 
@@ -409,8 +411,10 @@ checksum = "c469d952047f47f91b68d1cba3f10d63c11d73e4636f24f08daf0278abf01c4d"
 dependencies = [
  "android-tzdata",
  "iana-time-zone",
+ "js-sys",
  "num-traits",
  "serde",
+ "wasm-bindgen",
  "windows-link",
 ]
 
@@ -579,10 +583,13 @@ name = "db"
 version = "0.1.0"
 dependencies = [
  "async-trait",
+ "chrono",
  "dotenv",
+ "model",
  "sea-orm",
  "sea-orm-migration",
  "thiserror",
+ "uuid",
 ]
 
 [[package]]
@@ -1418,6 +1425,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "model"
+version = "0.1.0"
+
+[[package]]
 name = "native-tls"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1985,7 +1996,9 @@ name = "routes"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "db",
  "dotenv",
+ "model",
  "reqwest",
  "sea-orm",
  "serde",
@@ -3120,6 +3133,7 @@ version = "1.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3cf4199d1e5d15ddd86a694e4d0dffa9c323ce759fea589f00fef9d81cc1931d"
 dependencies = [
+ "getrandom 0.3.3",
  "js-sys",
  "serde",
  "wasm-bindgen",

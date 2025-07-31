@@ -11,6 +11,9 @@ pub enum Error {
 
     #[error(transparent)]
     ReqwestError(#[from] reqwest::Error),
+
+    #[error(transparent)]
+    TcpListenerError(#[from] std::io::Error),
 }
 
 impl IntoResponse for Error {
@@ -19,6 +22,7 @@ impl IntoResponse for Error {
             Error::SerdeError(err)=>(StatusCode::INTERNAL_SERVER_ERROR,err.to_string()),
             Error::DotEnvError(err)=>(StatusCode::INTERNAL_SERVER_ERROR,err.to_string()),
             Error::ReqwestError(err)=>(StatusCode::INTERNAL_SERVER_ERROR,err.to_string()),
+            Error::TcpListenerError(err)=>(StatusCode::INTERNAL_SERVER_ERROR,err.to_string()),
         }.into_response()
     }
 }

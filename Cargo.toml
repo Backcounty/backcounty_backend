@@ -12,11 +12,16 @@ members = [
     "routes",
     "db",
     "blog",
-    "auth"
+    "auth",
+    "model"
 ]
 resolver = "1"
 
 [workspace.dependencies]
+model={path = "./model" }
+routes = { path = "./routes" }
+db = { path = "./db" }
+
 #ayncs
 tokio = { version = "1.45.1", features = ["macros", "rt-multi-thread"] }
 axum = { version = "0.8.4" }
@@ -41,8 +46,12 @@ thiserror = "2.0.12"
 
 #others
 dotenv = "0.15.0"
+uuid = { version="1.17.0",features = ["v4"] }
+chrono = "0.4.41"
 
 [dependencies]
-routes = { path = "./routes" }
-db = { path = "./db" }
+model.workspace = true
+routes.workspace = true
+db.workspace = true
 tokio.workspace = true
+thiserror.workspace = true

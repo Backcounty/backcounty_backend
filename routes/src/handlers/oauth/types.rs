@@ -1,4 +1,6 @@
 use serde::{Deserialize, Serialize};
+
+use model::UserProfile;
 #[derive(Debug, Deserialize)]
 pub struct AuthorizationCode {
     pub code: String,
@@ -46,14 +48,7 @@ pub(crate) struct GooglePhoto {
     pub url: String,
 }
 
-#[derive(Debug)]
-pub struct UserProfile {
-    pub name: String,
-    pub first_name: String,
-    pub last_name: String,
-    pub email: String,
-    pub photo: String,
-}
+
 
 impl Into<UserProfile> for GoogleProfileDto {
     fn into(self) -> UserProfile {

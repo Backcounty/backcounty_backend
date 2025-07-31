@@ -2,12 +2,13 @@ mod types;
 
 use axum::response::{IntoResponse, Response};
 
+use model::UserProfile;
+
 use crate::constants;
 use crate::Result;
-use types::{
+use self::types::{
     AuthorizationCode, GoogleAccessTokenRequest, GoogleAccessTokenResponse, GoogleProfileDto,
 };
-use crate::handlers::oauth::types::UserProfile;
 
 pub async fn handle_oauth(authorization_code: String) -> Result<Response> {
     let authorization_code_struct =

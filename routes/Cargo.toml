@@ -4,6 +4,8 @@ version = "0.1.0"
 edition="2021"
 
 [dependencies]
+model.workspace = true
+db.workspace = true
 
 tokio.workspace = true
 axum.workspace = true

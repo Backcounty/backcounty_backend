@@ -4,8 +4,14 @@ version = "0.1.0"
 edition.workspace = true
 
 [dependencies]
+#internal workspace
+model.workspace =true
+
 sea-orm.workspace = true
-thiserror.workspace = true
 dotenv.workspace = true
 sea-orm-migration.workspace = true
+thiserror.workspace = true
 async-trait.workspace = true
+uuid.workspace = true
+chrono .workspace = true
+
