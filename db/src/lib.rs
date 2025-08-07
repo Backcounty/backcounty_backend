@@ -13,7 +13,7 @@ use crate::migration::Migrator;
 use crate::repo::UserRepo;
 
 pub struct Db {
-    file_repo: UserRepo,
+    pub user_repo: UserRepo,
 }
 
 impl Db {
@@ -22,7 +22,7 @@ impl Db {
         Migrator::up(connection.as_ref(), None).await?;
 
         Ok(Self {
-            file_repo: UserRepo::new(Arc::clone(&connection)),
+            user_repo: UserRepo::new(Arc::clone(&connection)),
         })
     }
 }

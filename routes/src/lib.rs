@@ -41,6 +41,7 @@ impl RouterService {
 
         Ok(router_service)
     }
+    
     fn get_routes(db: Arc<Db>) -> Router {
         Router::new().merge(Self::unauthenticated_routes(db))
     }

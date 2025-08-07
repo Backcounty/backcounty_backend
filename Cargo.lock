@@ -2000,12 +2000,10 @@ dependencies = [
  "dotenv",
  "model",
  "reqwest",
- "sea-orm",
  "serde",
  "serde_json",
  "thiserror",
  "tokio",
- "tower",
  "tower-http",
 ]
 

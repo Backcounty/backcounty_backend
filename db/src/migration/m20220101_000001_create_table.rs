@@ -25,6 +25,7 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new_with_type("email",ColumnType::Text).not_null())
                     .col(ColumnDef::new_with_type("profile_photo",ColumnType::Text).not_null())
                     .col(ColumnDef::new_with_type("created_at",ColumnType::DateTime).not_null())
+                    .col(ColumnDef::new_with_type("updated_at",ColumnType::DateTime).not_null())
                     .to_owned()
 
             )
