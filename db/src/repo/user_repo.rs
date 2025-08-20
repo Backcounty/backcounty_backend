@@ -25,6 +25,7 @@ impl UserRepo {
             profile_photo: Set(user.photo),
             created_at: Set(Utc::now()),
             updated_at: Set(Utc::now()),
+            role_id:Set(10)// to do
         };
         user_model.insert(self.0.as_ref()).await?;
 

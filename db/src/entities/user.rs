@@ -1,7 +1,6 @@
-use sea_orm::{
-    ActiveModelBehavior, DeriveEntityModel, DerivePrimaryKey, DeriveRelation, EnumIter,
-    PrimaryKeyTrait,
-};
+use sea_orm::RelationDef;
+
+use super::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "user")]
@@ -15,9 +14,24 @@ pub struct Model {
     pub profile_photo: String,
     pub created_at: chrono::DateTime<chrono::Utc>,
     pub updated_at: chrono::DateTime<chrono::Utc>,
+    pub role_id:u8
 }
 
-#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {}
+#[derive(Copy, Clone, Debug, EnumIter)]
+pub enum Relation {
+    Blog,
+    Comments,
+    Reactions,
+}
+
+impl RelationTrait for Relation{
+    fn def(&self) -> RelationDef {
+        match self {
+            Relation::Blog=>Entity::has_many(blog::Entity).into(),
+            Relation::Comments=>Entity::has_many(comment::Entity).into(),
+            Relation::Reactions=>Entity::has_many(reaction::Entity).into()
+        }
+    }
+}
 
 impl ActiveModelBehavior for ActiveModel {}
