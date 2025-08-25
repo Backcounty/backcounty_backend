@@ -1,13 +1,12 @@
 use std::sync::Arc;
 
-use sea_orm::{ActiveModelTrait, DatabaseConnection, Set};
 use chrono::Utc;
 
 use model::UserProfile;
 
 use crate::entities::user;
 use crate::Result;
-
+use super::*;
 pub struct UserRepo(Arc<DatabaseConnection>);
 
 impl UserRepo {
@@ -25,10 +24,20 @@ impl UserRepo {
             profile_photo: Set(user.photo),
             created_at: Set(Utc::now()),
             updated_at: Set(Utc::now()),
-            role_id:Set(10)// to do
+            ..Default::default()
         };
         user_model.insert(self.0.as_ref()).await?;
 
         Ok(())
+    }
+
+    pub async fn user_is_present(&self, email: &str) -> Result<bool> {
+        let is_present=user::Entity::find()
+            .filter(user::Column::Email.contains(email))
+            .one(self.0.as_ref())
+            .await?
+            .is_some();
+
+        Ok(is_present)
     }
 }

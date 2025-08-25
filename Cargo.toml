@@ -13,7 +13,8 @@ members = [
     "db",
     "blog",
     "auth",
-    "model"
+    "model",
+    "migration"
 ]
 resolver = "1"
 
@@ -21,6 +22,7 @@ resolver = "1"
 model={path = "./model" }
 routes = { path = "./routes" }
 db = { path = "./db" }
+migration={path="./migration"}
 
 #ayncs
 tokio = { version = "1.45.1", features = ["macros", "rt-multi-thread"] }

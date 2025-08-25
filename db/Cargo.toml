@@ -6,6 +6,7 @@ edition.workspace = true
 [dependencies]
 #internal workspace
 model.workspace =true
+migration.workspace = true
 
 sea-orm.workspace = true
 dotenv.workspace = true

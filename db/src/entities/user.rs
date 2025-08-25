@@ -1,4 +1,3 @@
-use sea_orm::RelationDef;
 
 use super::*;
 
@@ -14,22 +13,24 @@ pub struct Model {
     pub profile_photo: String,
     pub created_at: chrono::DateTime<chrono::Utc>,
     pub updated_at: chrono::DateTime<chrono::Utc>,
-    pub role_id:u8
+    pub role_id: i16,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter)]
 pub enum Relation {
     Blog,
     Comments,
-    Reactions,
+    BlogReactions,
+    CommentsReactions,
 }
 
-impl RelationTrait for Relation{
+impl RelationTrait for Relation {
     fn def(&self) -> RelationDef {
         match self {
-            Relation::Blog=>Entity::has_many(blog::Entity).into(),
-            Relation::Comments=>Entity::has_many(comment::Entity).into(),
-            Relation::Reactions=>Entity::has_many(reaction::Entity).into()
+            Relation::Blog => Entity::has_many(blog::Entity).into(),
+            Relation::Comments => Entity::has_many(comment::Entity).into(),
+            Relation::BlogReactions => Entity::has_many(blog_reaction::Entity).into(),
+            Relation::CommentsReactions => Entity::has_many(comment_reaction::Entity).into(),
         }
     }
 }

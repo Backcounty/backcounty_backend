@@ -1,15 +1,16 @@
 mod error;
-mod migration;
 
-use std::sync::Arc;
 mod repo;
 mod entities;
+
+use std::sync::Arc;
 
 use sea_orm::Database;
 use sea_orm_migration::MigratorTrait;
 
+use migration::Migrator;
+
 pub use crate::error::{Error, Result};
-use crate::migration::Migrator;
 use crate::repo::UserRepo;
 
 pub struct Db {

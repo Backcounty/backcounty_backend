@@ -27,12 +27,20 @@ pub async fn handle_oauth(
         .get_user_profile(access_token.access_token)
         .await?;
 
-    state
+    if !state
         .db_repo
         .as_ref()
         .user_repo
-        .create_user(user_profile)
-        .await?;
+        .user_is_present(&user_profile.email)
+        .await?
+    {
+        state
+            .db_repo
+            .as_ref()
+            .user_repo
+            .create_user(user_profile)
+            .await?;
+    }
 
     Ok(().into_response())
 }
@@ -55,7 +63,8 @@ impl GoogleOauthClient {
             redirect_uri: dotenv::var("REDIRECT_URI")?,
             grant_type: dotenv::var("GRANT_TYPE")?,
         };
-        let response = self.0
+        let response = self
+            .0
             .post(constants::GOOGLE_OAUTH_TOKEN_ENDPOINT)
             .form(&token_request)
             .send()
