@@ -1,12 +1,6 @@
 pub(crate) mod user;
-mod comment;
-mod taxonomies;
-mod blog;
-mod blog_reaction;
-mod comment_reaction;
-mod reaction_type;
-mod blog_category;
-mod blog_tag;
+pub(crate) mod auth;
+pub(crate) mod blog;
 
 use sea_orm::{
     ActiveModelBehavior, DeriveEntityModel,DerivePrimaryKey,EnumIter,
@@ -15,5 +9,7 @@ use sea_orm::{
     RelationDef,
     Related
 };
+pub(crate) use blog::*;
+pub(crate) use auth::*;
 
 

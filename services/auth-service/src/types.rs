@@ -1,10 +1,6 @@
 use serde::{Deserialize, Serialize};
 
 use model::UserProfile;
-#[derive(Debug, Deserialize)]
-pub struct AuthorizationCode {
-    pub code: String,
-}
 
 #[derive(Debug, Serialize)]
 pub struct GoogleAccessTokenRequest {
@@ -15,13 +11,13 @@ pub struct GoogleAccessTokenRequest {
     pub grant_type: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug,Deserialize)]
 pub struct GoogleAccessTokenResponse {
     pub access_token: String,
 }
 
 #[derive(Debug, Deserialize)]
-pub(crate) struct GoogleProfileDto {
+pub struct GoogleProfileDto {
     pub names: Option<Vec<GoogleName>>,
     #[serde(rename = "emailAddresses")]
     pub email_addresses: Option<Vec<GoogleEmail>>,
@@ -29,7 +25,7 @@ pub(crate) struct GoogleProfileDto {
 }
 
 #[derive(Debug, Deserialize)]
-pub(crate) struct GoogleName {
+pub struct GoogleName {
     #[serde(rename = "displayName")]
     pub display_name: Option<String>,
     #[serde(rename = "givenName")]
@@ -39,12 +35,12 @@ pub(crate) struct GoogleName {
 }
 
 #[derive(Debug, Deserialize)]
-pub(crate) struct GoogleEmail {
+pub struct GoogleEmail {
     pub value: String,
 }
 
 #[derive(Debug, Deserialize)]
-pub(crate) struct GooglePhoto {
+pub struct GooglePhoto {
     pub url: String,
 }
 
@@ -85,6 +81,7 @@ impl Into<UserProfile> for GoogleProfileDto {
             last_name,
             email,
             photo,
+            user_id:uuid::Uuid::new_v4(),
         }
     }
 }

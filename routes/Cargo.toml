@@ -4,7 +4,6 @@ version = "0.1.0"
 edition="2021"
 
 [dependencies]
-model.workspace = true
 db.workspace = true
 
 tokio.workspace = true
@@ -14,4 +13,8 @@ serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
 reqwest.workspace = true
-dotenv .workspace = true
+uuid.workspace = true
+auth-service.workspace = true
+axum-extra.workspace = true
+cookie.workspace = true
+chrono.workspace = true

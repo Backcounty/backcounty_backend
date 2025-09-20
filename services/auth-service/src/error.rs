@@ -2,14 +2,14 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(Debug,thiserror::Error)]
 pub enum Error {
     #[error(transparent)]
-    DotEnvError(#[from] dotenv::Error),
-    
-    #[error(transparent)]
-    SeaormDbError(#[from] sea_orm::error::DbErr),
+    ReqwestError(#[from] reqwest::Error),
 
     #[error(transparent)]
-    SerdeError(#[from] serde_json::Error),    
+    DotEnvError(#[from] dotenv::Error),
 
     #[error("Custom Error: {0}")]
     Custom(& 'static str),
+
+    #[error(transparent)]
+    JwtEncodeError(#[from] jsonwebtoken::errors::Error),
 }

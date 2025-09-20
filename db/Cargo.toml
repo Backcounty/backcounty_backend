@@ -7,6 +7,7 @@ edition.workspace = true
 #internal workspace
 model.workspace =true
 migration.workspace = true
+auth-service.workspace = true
 
 sea-orm.workspace = true
 dotenv.workspace = true
@@ -15,4 +16,5 @@ thiserror.workspace = true
 async-trait.workspace = true
 uuid.workspace = true
 chrono .workspace = true
+serde_json.workspace = true
 

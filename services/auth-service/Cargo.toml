@@ -1,0 +1,17 @@
+[package]
+name = "auth-service"
+version = "0.1.0"
+edition.workspace = true
+
+[dependencies]
+model.workspace = true
+
+reqwest.workspace = true
+dotenv.workspace = true
+thiserror.workspace = true
+serde.workspace = true
+uuid.workspace = true
+jsonwebtoken.workspace = true
+chrono.workspace = true
+cookie.workspace = true
+
