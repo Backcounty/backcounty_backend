@@ -22,7 +22,7 @@ impl AuthService {
     }
     
     pub async fn get_profile_from_code(&self,authorization_code: &str) -> Result<UserProfile> {
-        let token=self.google_oauth.oauth_access_token(authorization_code).await?;
+        let token=self.google_oauth.get_oauth_access_token(authorization_code).await?;
         let user_profile=self.google_oauth.get_user_profile(&token.access_token).await?;
        
         Ok(user_profile)

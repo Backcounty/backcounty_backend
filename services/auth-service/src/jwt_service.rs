@@ -48,6 +48,7 @@ impl JwtService {
             algorithm: Algorithm::HS256,
         })
     }
+
     pub fn create_token_pair(&self, user_id: &uuid::Uuid,session_id:&uuid::Uuid) -> Result<TokenPair> {
         let now = Utc::now().timestamp() as u64;
         let exp = now.saturating_add(Duration::minutes(15).num_seconds() as u64);

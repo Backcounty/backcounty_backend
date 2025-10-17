@@ -27,7 +27,10 @@ pub enum Error {
     InvalidHeaderValue(#[from] axum::http::header::InvalidHeaderValue),
 
     #[error("Offset Error: {0}")]
-    OffsetTimeError(#[from] cookie::time::error::ComponentRange)
+    OffsetTimeError(#[from] cookie::time::error::ComponentRange),
+
+    #[error(transparent)]
+    Other(#[from] Box<dyn std::error::Error + Send + Sync>),
 }
 
 impl IntoResponse for Error {

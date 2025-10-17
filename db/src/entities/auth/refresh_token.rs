@@ -24,10 +24,5 @@ impl RelationTrait for Relation {
     }
 }
 
-// impl Related<session::Entity> for Entity {
-//     fn to() -> RelationDef {
-//         Relation::Session.def()
-//     }
-// }
 
 impl ActiveModelBehavior for ActiveModel {}

@@ -1,5 +1,3 @@
-use super::super::UnauthenticatedSharedState;
-use crate::Result;
 use cookie::time::OffsetDateTime;
 use auth_service::{JwtService, TokenPair};
 use axum::extract::State;
@@ -12,6 +10,9 @@ use serde_json::json;
 use uuid::Uuid;
 use chrono::Utc;
 use chrono::Duration;
+
+use super::super::UnauthenticatedSharedState;
+use crate::Result;
 #[derive(Debug, Deserialize)]
 pub struct AuthorizationCode {
     pub code: String,
@@ -23,7 +24,6 @@ pub async fn session(
 ) -> Result<Response> {
     let authorization_code_struct =
         serde_json::from_str::<AuthorizationCode>(authorization_code.as_str())?;
-    println!("authorization_code_struct {:?}", authorization_code_struct);
     let token_pair=create_new_session(&state, &authorization_code_struct).await?;
 
 
@@ -35,9 +35,9 @@ pub async fn session(
     let refresh_token_cookie = Cookie::build(("refresh_token", token_pair.refresh_token.0))
         .http_only(true)
         .expires(exp)
+        .path("/blog")
         .build();
 
-    println!("Refresh Token Cookie {:?}", refresh_token_cookie);
     headers.insert(
         "Set-Cookie",
         HeaderValue::from_str(&refresh_token_cookie.to_string())?,
@@ -63,7 +63,6 @@ async fn create_new_session(
         .auth_service
         .get_profile_from_code(&authorization_code.code)
         .await?;
-    println!("user_profile {:?}", user_profile);
 
     // Checks if a user exists, if not create user
     let user_id = if let Some(user) = state
@@ -100,6 +99,8 @@ async fn create_new_session(
 
     Ok(token_pair)
 }
+
+
 async fn rotate_session(
     state: &UnauthenticatedSharedState,
     refresh_token: &str,

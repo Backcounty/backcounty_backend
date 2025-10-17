@@ -11,7 +11,7 @@ impl GoogleOauthService {
         Self(reqwest::Client::new())
     }
 
-    pub(super) async fn oauth_access_token(
+    pub(super) async fn get_oauth_access_token(
         &self,
         authorization_code: &str,
     ) -> Result<GoogleAccessTokenResponse> {
@@ -35,6 +35,7 @@ impl GoogleOauthService {
 
     pub(super) async fn get_user_profile(&self, token: &str) -> Result<UserProfile> {
         let person_fields = constants::PERSON_FIELDS.join(",");
+        //Exchange token to get google profile
         let google_profile_response = self
             .0
             .get(constants::GOOGLE_PROFILE_URL)
