@@ -21,3 +21,6 @@ chrono.workspace = true
 tower.workspace = true
 http.workspace = true
 jsonwebtoken.workspace = true
+headers.workspace = true
+axum-cookie.workspace = true
+

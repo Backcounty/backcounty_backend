@@ -1,5 +1,6 @@
 mod error;
 mod handlers;
+mod helper;
 mod middleware;
 
 use handlers::*;
@@ -7,16 +8,17 @@ use handlers::*;
 use std::sync::Arc;
 
 use auth_service::AuthService;
-use axum::http::{HeaderValue, Method};
-use axum::{routing::post, Router};
+use axum::http::HeaderValue;
 use axum::routing::get;
+use axum::{routing::post, Router};
+use axum_cookie::{CookieLayer, CookieManager};
 use db::Db;
+use http::{HeaderName, Method};
 use tokio::net::TcpListener;
-use tower_http::cors::CorsLayer;
+use tower_http::cors::{AllowHeaders, AllowOrigin, CorsLayer};
 
 pub use crate::error::{Error, Result};
 pub use crate::middleware::AuthLayer;
-
 
 #[derive(Clone)]
 struct UnauthenticatedSharedState {
@@ -37,11 +39,8 @@ pub struct RouterService {
 
 impl RouterService {
     pub async fn init(db: Arc<Db>, auth_service: Arc<AuthService>) -> Result<RouterService> {
-        let cors = CorsLayer::new()
-            .allow_origin([HeaderValue::from_static("http://localhost:3000")])
-            .allow_credentials(true);
 
-        let app = Router::from(Self::get_routes(db, auth_service)).layer(cors);
+        let app =Self::get_routes(db, auth_service);
         let listener = TcpListener::bind("localhost:8084").await?;
         let router_service = Self {
             router: app,
@@ -52,18 +51,35 @@ impl RouterService {
     }
 
     fn unauthenticated_routes(db: Arc<Db>, auth_service: Arc<AuthService>) -> Router {
-        let shared_state = UnauthenticatedSharedState {
+        let unauthenticated_state = UnauthenticatedSharedState {
+            db_repo: db.clone(),
+            auth_service: auth_service.clone(),
+        };
+        let authenticated_state = AuthenticatedSharedState {
             db_repo: db,
             auth_service,
         };
+        let cors_layer = CorsLayer::new()
+            .allow_credentials(true)
+            .allow_methods([Method::GET,Method::POST])
+            .allow_origin(AllowOrigin::exact(HeaderValue::from_static(
+                "http://localhost:3000",
+            )))
+            .allow_headers([http::header::CONTENT_TYPE,http::header::AUTHORIZATION]);
+
         let app = Router::new()
+            .route("/blog/publish", post(create_blog))
+            .with_state(authenticated_state.clone())
+            .layer(AuthLayer::new(authenticated_state.clone()))
             .route("/auth/session", post(session))
-            .with_state(shared_state)
-            .layer(AuthLayer);
+            .with_state(unauthenticated_state.clone())
+            .route("/auth/refresh_token", get(refresh_token))
+            .layer(CookieLayer::default())
+            .with_state(unauthenticated_state)
+            .layer(cors_layer);
+
         app
     }
-
-  
 
     fn get_routes(db: Arc<Db>, auth_service: Arc<AuthService>) -> Router {
         Router::new().merge(Self::unauthenticated_routes(db, auth_service))

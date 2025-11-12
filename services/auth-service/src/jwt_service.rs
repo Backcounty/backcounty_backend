@@ -2,20 +2,35 @@ use chrono::{DateTime, Duration};
 use chrono::Utc;
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Deserializer, Serialize};
+
 use crate::error::Result;
 
-//This are the claims that the jwt requires to sign it
+//These are the claims that the jwt requires to sign it
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Claims {
     pub iss: String,
     pub iat: DateTime<Utc>,
     pub exp: u64,
     pub sub: uuid::Uuid,
-    pub aud: String,
     pub jti: uuid::Uuid,
     pub session_id:uuid::Uuid,
 }
 
+#[derive(Debug,Clone)]
+pub struct UserInfo {
+    user_id: uuid::Uuid,
+    session_id:uuid::Uuid,
+}
+impl Into<UserInfo> for Claims {
+    fn into(self) -> UserInfo {
+        UserInfo {
+            user_id:self.session_id,
+            session_id:self.session_id,
+        }
+    }
+}
+
+#[derive(Clone)]
 pub struct JwtService {
     encoding_key: EncodingKey,
     encoding_secret: String,
@@ -51,19 +66,18 @@ impl JwtService {
 
     pub fn create_token_pair(&self, user_id: &uuid::Uuid,session_id:&uuid::Uuid) -> Result<TokenPair> {
         let now = Utc::now().timestamp() as u64;
-        let exp = now.saturating_add(Duration::minutes(15).num_seconds() as u64);
+        let exp = now.saturating_add(Duration::minutes(8).num_seconds() as u64);
 
         let access_token_claims = Claims {
             iat: Utc::now(),
             iss: "https://auth_service.backcountry.com".to_string(),
-            aud: "https://api.backcountry.com".to_string(),
             sub: user_id.clone(),
             exp,
             jti: uuid::Uuid::new_v4(),
             session_id:session_id.clone()
         };
 
-        let refresh_token_expiration = Duration::days(10).num_seconds() as u64;
+        let refresh_token_expiration = now.saturating_add(Duration::days(10).num_seconds() as u64);
         let refresh_token_claims = Claims {
             exp: refresh_token_expiration,
             jti: uuid::Uuid::new_v4(),
@@ -81,28 +95,36 @@ impl JwtService {
         })
     }
 
+    pub fn validate_access_token(&self, access_token: &str) ->Result<Claims>{
+        let validation=Validation::new(self.algorithm);
+        let claims=decode::<Claims>(access_token,&self.decoding_key,&validation)?.claims;
+        Ok(claims)
+    }
+
     pub fn decode_refresh_token(&self, refresh_token: &str) -> Result<RefreshToken> {
         let claims = decode::<Claims>(refresh_token, &self.decoding_key, &Validation::new(self.algorithm))?.claims;
         let refresh_token_struct = RefreshToken(refresh_token.to_owned(), claims);
         Ok(refresh_token_struct)
     }
 
-    pub fn rotate_token(&self, current_token: &RefreshToken) -> Result<TokenPair> {
+    pub fn rotate_token_from_refresh(&self, refresh_token: &RefreshToken) -> Result<TokenPair> {
         let now = Utc::now().timestamp() as u64;
         let exp = now.saturating_add(Duration::minutes(15).num_seconds() as u64);
         let iat=Utc::now();
         
+        //New Access Token with expiry is created
         let access_token_claims = Claims {
             iat,
             jti:uuid::Uuid::new_v4(),
             exp,
-            ..current_token.1.clone()
+            ..refresh_token.1.clone()
         };
         
+        //The expiry date of refresh token remains preserved
         let refresh_token_claims=Claims{
             iat,
             jti:uuid::Uuid::new_v4(),
-            ..current_token.1.clone()
+            ..refresh_token.1.clone()
         };
         let access_token = encode(&self.header, &access_token_claims, &self.encoding_key)?;
         let refresh_token = encode(&self.header, &refresh_token_claims, &self.encoding_key)?;

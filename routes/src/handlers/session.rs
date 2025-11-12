@@ -1,18 +1,13 @@
-use cookie::time::OffsetDateTime;
-use auth_service::{JwtService, TokenPair};
+use crate::helper;
+use auth_service::TokenPair;
 use axum::extract::State;
-use axum::http::{HeaderMap, HeaderValue};
 use axum::response::{IntoResponse, Response};
-use axum::Json;
-use cookie::Cookie;
+use axum_cookie::CookieManager;
 use serde::Deserialize;
-use serde_json::json;
 use uuid::Uuid;
-use chrono::Utc;
-use chrono::Duration;
 
 use super::super::UnauthenticatedSharedState;
-use crate::Result;
+use crate::{Error, Result};
 #[derive(Debug, Deserialize)]
 pub struct AuthorizationCode {
     pub code: String,
@@ -24,38 +19,13 @@ pub async fn session(
 ) -> Result<Response> {
     let authorization_code_struct =
         serde_json::from_str::<AuthorizationCode>(authorization_code.as_str())?;
-    let token_pair=create_new_session(&state, &authorization_code_struct).await?;
+    let token_pair = create_session(&state, &authorization_code_struct).await?;
+    let token_response = helper::build_token_pair_response(token_pair)?;
 
-
-    let mut headers = HeaderMap::new();
-    //Cookie header to store refresh token and device id
-    let now = Utc::now().timestamp() ;
-    let exp = now.saturating_add(Duration::days(15).num_seconds());
-    let exp=OffsetDateTime::from_unix_timestamp(exp)?;
-    let refresh_token_cookie = Cookie::build(("refresh_token", token_pair.refresh_token.0))
-        .http_only(true)
-        .expires(exp)
-        .path("/blog")
-        .build();
-
-    headers.insert(
-        "Set-Cookie",
-        HeaderValue::from_str(&refresh_token_cookie.to_string())?,
-    );
-
-    headers.insert(
-        "Access-Control-Allow-Credentials",
-        HeaderValue::from_str("true")?,
-    );
-
-    Ok((
-        headers,
-        Json(json!({"access_token": token_pair.access_token.0.to_string()})),
-    )
-        .into_response())
+    Ok(token_response.into_response())
 }
 
-async fn create_new_session(
+async fn create_session(
     state: &UnauthenticatedSharedState,
     authorization_code: &AuthorizationCode,
 ) -> Result<TokenPair> {
@@ -100,19 +70,28 @@ async fn create_new_session(
     Ok(token_pair)
 }
 
+pub async fn refresh_token(
+    state: State<UnauthenticatedSharedState>,
+    cookie_manager: CookieManager,
+) -> Result<Response> {
+    let sth=cookie_manager.cookie();
+    println!("Cookie Jar:{:?}",sth);
+    let refresh_token_cookie = cookie_manager
+        .get("refresh_token")
+        .ok_or(Error::EmptyRefreshToken)?
+        .value()
+        .to_string();
 
-async fn rotate_session(
-    state: &UnauthenticatedSharedState,
-    refresh_token: &str,
-) -> Result<TokenPair> {
-    let jwt_service = JwtService::new()?;
-    let decoded_refresh_token = jwt_service.decode_refresh_token(&refresh_token)?;
+    let decoded_refresh_token = state
+        .auth_service
+        .jwt_service
+        .decode_refresh_token(&refresh_token_cookie)?;
 
     //rotating token
     let token_pair = state
         .auth_service
         .jwt_service
-        .rotate_token(&decoded_refresh_token)?;
+        .rotate_token_from_refresh(&decoded_refresh_token)?;
 
     //updating refresh token as it will be rotated
     state
@@ -121,15 +100,15 @@ async fn rotate_session(
         .create_refresh_token(&decoded_refresh_token)
         .await?;
 
-    //create entry for new refresh token
+    //create new  entry for refresh token
     state
         .db_repo
         .as_ref()
         .refresh_token_repo
         .create_refresh_token(&token_pair.refresh_token)
         .await?;
+    //Cookie header to store refresh token
+    let token_response = helper::build_token_pair_response(token_pair)?;
 
-    Ok(token_pair)
+    Ok(token_response.into_response())
 }
-
-

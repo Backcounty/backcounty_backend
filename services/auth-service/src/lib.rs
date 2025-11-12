@@ -8,6 +8,7 @@ use google_oauth_service::*;
 pub use jwt_service::*;
 use model::UserProfile;
 
+#[derive(Clone)]
 pub struct AuthService{
      google_oauth: GoogleOauthService,
     pub jwt_service: JwtService

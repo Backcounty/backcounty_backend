@@ -4,6 +4,7 @@ use crate::constants;
 use super::types::{GoogleAccessTokenRequest, GoogleAccessTokenResponse, GoogleProfileDto};
 use crate::error::Result;
 
+#[derive(Clone)]
 pub(super) struct GoogleOauthService(reqwest::Client);
 
 impl GoogleOauthService {

@@ -1,6 +1,5 @@
 use axum::response::{IntoResponse, Response};
 use axum::http::StatusCode;
-use crate::Error::Custom;
 
 pub type Result<T> = std::result::Result<T, Error>;
 #[derive(Debug,thiserror::Error)]
@@ -31,12 +30,18 @@ pub enum Error {
 
     #[error(transparent)]
     Other(#[from] Box<dyn std::error::Error + Send + Sync>),
+
+    #[error("Refresh token is empty")]
+    EmptyRefreshToken,
+
+
 }
 
 impl IntoResponse for Error {
     fn into_response(self) -> Response {
         match self {
-            Custom(msg)=>(StatusCode::INTERNAL_SERVER_ERROR,msg),
+            Error::Custom(msg)=>(StatusCode::INTERNAL_SERVER_ERROR,msg),
+            Error::EmptyRefreshToken=>(StatusCode::BAD_REQUEST,self.to_string()),
             _=>(StatusCode::INTERNAL_SERVER_ERROR,self.to_string())
         }.into_response()
     }
