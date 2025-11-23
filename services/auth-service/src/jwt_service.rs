@@ -18,13 +18,13 @@ pub struct Claims {
 
 #[derive(Debug,Clone)]
 pub struct UserInfo {
-    user_id: uuid::Uuid,
+    pub user_id: uuid::Uuid,
     session_id:uuid::Uuid,
 }
 impl Into<UserInfo> for Claims {
     fn into(self) -> UserInfo {
         UserInfo {
-            user_id:self.session_id,
+            user_id:self.sub,
             session_id:self.session_id,
         }
     }

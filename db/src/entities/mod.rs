@@ -7,7 +7,9 @@ use sea_orm::{
     PrimaryKeyTrait,RelationTrait,
     EntityTrait,
     RelationDef,
-    Related
+    Related,DeriveActiveEnum,
+    entity::prelude::StringLen
+
 };
 pub(crate) use blog::*;
 pub(crate) use auth::*;

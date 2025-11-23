@@ -16,7 +16,24 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new_with_type("status",ColumnType::Text).not_null())
                     .to_owned(),
             )
-            .await
+            .await?;
+
+        // 2️⃣ Insert initial rows
+        manager
+            .exec_stmt(
+                Query::insert()
+                    .into_table(Alias::new("blog_status"))
+                    .columns([
+                        Alias::new("blog_status_id"),
+                        Alias::new("status"),
+                    ])
+                    .values_panic([0.into(), "Pending".into()])
+                    .values_panic([1.into(), "Published".into()])
+                    .to_owned(),
+            )
+            .await?;
+
+        Ok(())
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {

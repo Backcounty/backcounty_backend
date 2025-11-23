@@ -15,20 +15,18 @@ impl MigrationTrait for Migration {
                             .not_null()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new_with_type("user_id", ColumnType::Uuid).not_null())
+                    .col(ColumnDef::new_with_type("author_id", ColumnType::Uuid).not_null())
                     .col(
                         ColumnDef::new_with_type("created_at", ColumnType::TimestampWithTimeZone)
                             .not_null()
-                            .date_time(),
                     )
                     .col(
                         ColumnDef::new_with_type("updated_at", ColumnType::TimestampWithTimeZone)
                             .not_null()
-                            .date_time(),
                     )
                     .col(
                         ColumnDef::new_with_type("published_at", ColumnType::TimestampWithTimeZone)
-                            .date_time(),
+                            .null(),
                     )
                     .col(ColumnDef::new_with_type("title", ColumnType::Text).not_null())
                     .col(ColumnDef::new_with_type("content", ColumnType::Text).null())
@@ -46,7 +44,7 @@ impl MigrationTrait for Migration {
                     .foreign_key(
                         ForeignKeyCreateStatement::new()
                             .name("fk_blog_user")
-                            .from("blog", "user_id")
+                            .from("blog", "author_id")
                             .to("user", "user_id"),
                     )
                     .foreign_key(

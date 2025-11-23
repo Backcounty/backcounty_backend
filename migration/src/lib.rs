@@ -20,7 +20,7 @@ use sea_orm_migration::{
     manager::SchemaManager,
 };
 use sea_orm::{DbErr,DeriveMigrationName};
-use sea_orm::sea_query::{ColumnDef, Table};
+use sea_orm::sea_query::{ColumnDef, Table,Query,Alias};
 use sea_orm::sea_query::TableCreateStatement;
 use sea_orm_migration::sea_query::ColumnType;
 use sea_orm::sea_query::ForeignKeyCreateStatement;

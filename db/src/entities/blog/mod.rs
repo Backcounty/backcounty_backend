@@ -1,3 +1,4 @@
+use serde::Serialize;
 use super::*;
 pub(crate) mod blog_category;
 pub(crate) mod blog_reaction;
@@ -8,20 +9,20 @@ pub(crate) mod reaction_type;
 pub(crate) mod taxonomies;
 pub(crate) mod media;
 
-#[derive(Debug, Clone, PartialEq, Eq, DeriveEntityModel)]
+#[derive(Debug, Serialize,Clone, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "blog")]
 pub struct Model {
     #[sea_orm(primary_key)]
     blog_id: uuid::Uuid,
-    user_id: uuid::Uuid,
+    author_id: uuid::Uuid,
     created_at: chrono::DateTime<chrono::Utc>,
     updated_at: chrono::DateTime<chrono::Utc>,
-    published_at: chrono::DateTime<chrono::Utc>,
+    published_at: Option<chrono::DateTime<chrono::Utc>>,
     title: String,
     content: String,
-    view_count: u16,
-    like_count: u16,
-    blog_status_id: i8,
+    view_count: i32,
+    like_count: i32,
+    blog_status_id: i16,
 }
 
 #[derive(Debug, EnumIter)]
@@ -38,7 +39,7 @@ impl RelationTrait for Relation {
     fn def(&self) -> RelationDef {
         match self {
             Relation::User => Entity::belongs_to(user::Entity)
-                .from(Column::UserId)
+                .from(Column::AuthorId)
                 .to(user::Column::UserId)
                 .into(),
             Relation::BlogStatus => Entity::has_one(blog_status::Entity).into(),
@@ -95,8 +96,19 @@ pub mod blog_status {
     pub struct Model {
         #[sea_orm(primary_key)]
         blog_status_id: i16,
-        status: String,
+        #[sea_orm(default)]
+        status: BlogStatus,
     }
+
+    #[derive(Debug, Clone, PartialEq, Eq,EnumIter, DeriveActiveEnum)]
+    #[sea_orm(rs_type = "String", db_type = "String(StringLen::N(1))")]
+    pub enum BlogStatus {
+        #[sea_orm(string_value = "Unpublished")]
+        UnPublished,
+        #[sea_orm(string_value = "Published")]
+        Published,
+    }
+
 
     #[derive(Debug, EnumIter)]
     pub enum Relation {

@@ -35,23 +35,12 @@ async fn create_session(
         .await?;
 
     // Checks if a user exists, if not create user
-    let user_id = if let Some(user) = state
-        .db_repo
-        .as_ref()
-        .user_repo
-        .get_user_from_email(&user_profile.email)
-        .await?
-    {
-        user.user_id
-    } else {
-        let user_id = state
+    let user_id=     state
             .db_repo
             .as_ref()
             .user_repo
             .create_user(&user_profile)
             .await?;
-        user_id
-    };
 
     //create access and refresh token for the user
     let session_id = Uuid::new_v4();

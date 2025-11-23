@@ -41,6 +41,7 @@ where
     fn call(&mut self, req: Request) -> Self::Future {
         // println!("Header values:{:?}",);
         let authorization=req.headers().get(http::header::AUTHORIZATION);
+        println!("Authorization headers: {:?}", req.headers());
         if authorization.is_none(){
             return Box::pin(async {
                 return Ok((StatusCode::BAD_REQUEST,"Authorization Header Required").into_response());

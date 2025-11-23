@@ -69,11 +69,13 @@ impl RouterService {
 
         let app = Router::new()
             .route("/blog/publish", post(create_blog))
+            .route("/user/profile",get(get_user_profile))
+            .route("/user/author/blogs",get(get_author_blogs_headers))
             .with_state(authenticated_state.clone())
             .layer(AuthLayer::new(authenticated_state.clone()))
             .route("/auth/session", post(session))
             .with_state(unauthenticated_state.clone())
-            .route("/auth/refresh_token", get(refresh_token))
+            .route("/auth/refresh", get(refresh_token))
             .layer(CookieLayer::default())
             .with_state(unauthenticated_state)
             .layer(cors_layer);
